@@ -1,15 +1,10 @@
 Module.register("MMM-TomTomCalculateRouteTraffic", {
     defaults: {
-        //FIXME: remove this line. https://api.tomtom.com/routing/1/calculateRoute/47.460858,-122.292098:47.595409,-122.328979/json?key=ASs2zMzGT9fWGsQnPO6AnL7gbM9RdXIz
         apiTomTomBaseUrl: "https://api.tomtom.com/routing/1/calculateRoute",
         apiTomTomKey: "",
         refresh: (5 * 60 * 1000),
-        routes: [{
-            name: "Work Mic",
-            from: {latitude: 46.4826157, longitude: 6.7646802},
-            to: {latitude: 46.5373436, longitude: 6.556156}
-        }],
-        animationSpeed: 2000,
+		animationSpeed: 2000,
+        routes: [],
     },
 
     start: function () {
@@ -20,55 +15,85 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
         }
 
         this.calculatedRoutes = [];
+		this.errorMessage = undefined;
 
         var self = this;
         setInterval(function() {
             self.calculateRoutes();
         }, this.config.refresh);
+		self.calculateRoutes();
     },
 
     getStyles: function () {
-        return ["css/MMM-TomTomCalculateRouteTraffic.css"];
+        return ["MMM-TomTomCalculateRouteTraffic.css", "font-awesome.css"];
     },
 
     getScripts: function () {
         return [];
     },
 
+	getTranslations: function () {
+		return {
+			en: "translations/en.json",
+			de: "translations/fr.json",
+		};
+	},
+
     // Override dom generator.
     getDom: function () {
         let wrapper = document.createElement("div");
-        let errorDiv = document.createElement("div");
-        wrapper.appendChild(errorDiv);
+
+		if (this.errorMessage !== undefined) {
+			let errorDiv = document.createElement("div");
+			errorDiv.className = "error";
+			errorDiv.innerHTML = "ERROR: " + this.errorMessage;
+			wrapper.appendChild(errorDiv);
+		}
 
         this.calculatedRoutes.forEach(calculatedRoute => {
             let routeDiv = document.createElement("div");
-            //todo: add symbol
-            let nameSpan = document.createElement("span");
-            nameSpan.className = "bright medium";
-            nameSpan.innerHTML = calculatedRoute.route.name;
-            routeDiv.appendChild(nameSpan);
-            let timeSpan = document.createElement("span");
-            timeSpan.className = "bright medium";
-            timeSpan.innerHTML = calculatedRoute.calculated.timeMin + " minutes";
-            routeDiv.appendChild(timeSpan);
+			routeDiv.className = "route";
+
+			let travelDiv = document.createElement("div");
+			routeDiv.appendChild(travelDiv);
+
+            let timeDiv = document.createElement("div");
+			let numbersSpan = document.createElement("span");
+			numbersSpan.className = "bright large";
+			numbersSpan.innerHTML = calculatedRoute.calculated.timeMin;
+			timeDiv.appendChild(numbersSpan);
+			let minutesSpan = document.createElement("span");
+			minutesSpan.className = "normal medium";
+			minutesSpan.innerHTML = " " + this.translate("minutes");
+			timeDiv.appendChild(minutesSpan);
+			travelDiv.appendChild(timeDiv);
             if (calculatedRoute.calculated.delayMin > 0) {
-                let delaySpan = document.createElement("span");
-                delaySpan.innerHTML = "(" + calculatedRoute.calculated.delayMin + " minutes delay)" ;
-                routeDiv.appendChild(delaySpan);
+                let delayDiv = document.createElement("div");
+                delayDiv.innerHTML = "(" + this.translate("including minutes delay", {"delayInMinutes": calculatedRoute.calculated.delayMin}) + ")";
+				delayDiv.className = "medium delay";
+				travelDiv.appendChild(delayDiv);
             }
-            let lengthSpan = document.createElement("span");
-            lengthSpan.className = "normal small";
-            lengthSpan.innerHTML = calculatedRoute.calculated.lengthKm + " km";
-            routeDiv.appendChild(lengthSpan);
-            wrapper.appendChild(routeDiv);
+
+			let infoDiv = document.createElement("div");
+			routeDiv.appendChild(infoDiv);
+
+			if (calculatedRoute.route.symbol !== undefined) {
+				let symbolSpan = document.createElement("span");
+				symbolSpan.className = `fa fa-${calculatedRoute.route.symbol} symbol`;
+				infoDiv.appendChild(symbolSpan);
+			}
+			let nameSpan = document.createElement("span");
+			nameSpan.className = "normal small";
+			nameSpan.innerHTML = calculatedRoute.route.name + " (" + calculatedRoute.calculated.lengthKm + " km)";
+			infoDiv.appendChild(nameSpan);
+
+			wrapper.appendChild(routeDiv);
         });
 
         return wrapper;
     },
 
     calculateRoutes: function() {
-        //todo: parallel?
         this.calculatedRoutes = [];
         this.config.routes.forEach(route => {
             this.calculateRoute(route);
@@ -85,15 +110,16 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
         request.onreadystatechange = function() {
             if (this.readyState === 4) {
                 if (this.status === 200) {
-                    this.calculatedRoutes.push(self.getCalculatedRoute(JSON.parse(this.response), route));
+					self.processData(JSON.parse(this.response), route);
                 } else {
-                    //todo: add error message in DOM
-                    Log.error(`${this.name}: TomTom API returned an error: ${this.status}`);
+					var errorMessage = `${self.name}: TomTom API returned an error: ${this.status}. `;
                     if (this.status === 400) {
-                        Log.error(`${this.name}: TomTom API - Incorrect request (locations)`);
+						errorMessage += "Incorrect request (locations)";
                     } else if (this.status === 403) {
-                        Log.error(`${this.name}: TomTom API - Authentication / permissions issue.`);
+						errorMessage += "Authentication / permissions issue";
                     }
+					Log.error(errorMessage);
+					self.errorMessage = errorMessage;
                 }
                 self.updateDom(self.config.animationSpeed);
             }
@@ -101,16 +127,17 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
         request.send();
     },
 
-    getCalculatedRoute: function (jsonBody, route) {
+	processData: function (jsonBody, route) {
         let summary = jsonBody.routes[0].summary;
-        return {
+        let calculatedRoute = {
             route: route,
             calculated: {
-                lengthKm: summary.lengthInMeters / 1000,
-                timeMin: summary.travelTimeInSeconds / 60,
-                delayMin: summary.trafficDelayInSeconds / 60,
+                lengthKm: Math.ceil(summary.lengthInMeters / 1000),
+                timeMin: Math.ceil(summary.travelTimeInSeconds / 60),
+                delayMin: Math.ceil(summary.trafficDelayInSeconds / 60),
             }
         };
+		this.calculatedRoutes.push(calculatedRoute);
     },
 
 });

@@ -1,0 +1,15 @@
+.MMM-TomTomCalculateRouteTraffic .error {
+  color: #ad1212
+}
+
+.MMM-TomTomCalculateRouteTraffic .route {
+  padding: 15px;
+}
+
+.MMM-TomTomCalculateRouteTraffic .delay {
+  color: #bf553c
+}
+
+.MMM-TomTomCalculateRouteTraffic .symbol {
+  margin-right: 10px;
+}
