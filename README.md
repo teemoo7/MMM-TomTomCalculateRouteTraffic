@@ -24,6 +24,7 @@ modules: [
       apiTomTomKey: "<YOUR_API_KEY_HERE>",
       refresh: (5 * 60 * 1000), // in milliseconds
       animationSpeed: 2000, // in milliseconds
+      size: "medium",
       routes: [{
         name: "Lausanne City Center",
         symbol: "city",
@@ -50,6 +51,7 @@ modules: [
 | `routes `         | `true`   | Routes definition, with an array. See `route` specs below |                               |
 | `refresh `        | `false`  | Refresh interval (in milliseconds)                        | `(5 * 60 * 1000)` (5 minutes) |
 | `animationSpeed ` | `false`  | Animation time to display results (in milliseconds)       | `2000`                        |
+| `size `           | `false`  | Font size family. Could be `small`, `medium` or `large`   | `medium`                      |
 
 ### `route` specs
 
