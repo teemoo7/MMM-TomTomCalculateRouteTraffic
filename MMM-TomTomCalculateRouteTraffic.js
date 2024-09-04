@@ -5,6 +5,25 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 		refresh: (5 * 60 * 1000),
 		animationSpeed: 2000,
 		routes: [],
+		size: "medium",
+	},
+
+	adjustedFontClassMap: {
+		"small": {
+			"small": "xsmall",
+			"medium": "small",
+			"large": "medium",
+		},
+		"medium": {
+			"small": "small",
+			"medium": "medium",
+			"large": "large",
+		},
+		"large": {
+			"small": "medium",
+			"medium": "large",
+			"large": "xlarge",
+		},
 	},
 
 	start: function () {
@@ -58,18 +77,18 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 
 			let timeDiv = document.createElement("div");
 			let numbersSpan = document.createElement("span");
-			numbersSpan.className = "bright large";
+			numbersSpan.className = "bright " + this.getAdjustedFontClass("large");
 			numbersSpan.innerHTML = calculatedRoute.calculated.timeMin;
 			timeDiv.appendChild(numbersSpan);
 			let minutesSpan = document.createElement("span");
-			minutesSpan.className = "normal medium";
+			minutesSpan.className = "normal " + this.getAdjustedFontClass("medium");
 			minutesSpan.innerHTML = " " + this.translate("minutes");
 			timeDiv.appendChild(minutesSpan);
 			travelDiv.appendChild(timeDiv);
 			if (calculatedRoute.calculated.delayMin > 0) {
 				let delayDiv = document.createElement("div");
 				delayDiv.innerHTML = "(" + this.translate("including minutes delay", {"delayInMinutes": calculatedRoute.calculated.delayMin}) + ")";
-				delayDiv.className = "medium delay";
+				delayDiv.className = "delay " + this.getAdjustedFontClass("medium");
 				travelDiv.appendChild(delayDiv);
 			}
 
@@ -82,7 +101,7 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 				infoDiv.appendChild(symbolSpan);
 			}
 			let nameSpan = document.createElement("span");
-			nameSpan.className = "normal small";
+			nameSpan.className = "normal " + this.getAdjustedFontClass("small");
 			nameSpan.innerHTML = calculatedRoute.route.name + " (" + calculatedRoute.calculated.lengthKm + " km)";
 			infoDiv.appendChild(nameSpan);
 
@@ -137,6 +156,10 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 			}
 		};
 		this.calculatedRoutes.push(calculatedRoute);
+	},
+
+	getAdjustedFontClass: function (fontSizeClass) {
+		return this.adjustedFontClassMap[this.config.size][fontSizeClass];
 	},
 
 });
