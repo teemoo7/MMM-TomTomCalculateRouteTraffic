@@ -6,6 +6,7 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 		animationSpeed: 2000,
 		routes: [],
 		size: "medium",
+		showDelay: true,
 	},
 
 	adjustedFontClassMap: {
@@ -86,7 +87,7 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 			minutesSpan.innerHTML = " " + this.translate("minutes");
 			timeDiv.appendChild(minutesSpan);
 			travelDiv.appendChild(timeDiv);
-			if (calculatedRoute.calculated.delayMin > 0) {
+			if (this.config.showDelay && calculatedRoute.calculated.delayMin > 0) {
 				let delayDiv = document.createElement("div");
 				delayDiv.innerHTML = "(" + this.translate("including minutes delay", {"delayInMinutes": calculatedRoute.calculated.delayMin}) + ")";
 				delayDiv.className = "delay " + this.getAdjustedFontClass("medium");
