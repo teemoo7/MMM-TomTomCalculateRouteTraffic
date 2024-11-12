@@ -53,6 +53,7 @@ modules: [
 | `refresh `        | `false`  | Refresh interval (in milliseconds)                        | `(5 * 60 * 1000)` (5 minutes) |
 | `animationSpeed ` | `false`  | Animation time to display results (in milliseconds)       | `2000`                        |
 | `size `           | `false`  | Font size family. Could be `small`, `medium` or `large`   | `medium`                      |
+| `showDelay `      | `false`  | Show or hide delay time in route info                     | `true`                        |
 
 ### `route` specs
 
