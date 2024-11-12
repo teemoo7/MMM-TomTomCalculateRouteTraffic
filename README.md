@@ -25,6 +25,7 @@ modules: [
       refresh: (5 * 60 * 1000), // in milliseconds
       animationSpeed: 2000, // in milliseconds
       size: "medium",
+      showDelay: true,
       routes: [{
         name: "Lausanne City Center",
         symbol: "city",
