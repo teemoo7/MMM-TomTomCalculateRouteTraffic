@@ -114,9 +114,7 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 	},
 
 	calculateRoutes: function () {
-		// Reset the error message
 		this.errorMessage = undefined;
-
 		this.calculatedRoutes = [];
 		this.config.routes.forEach(route => {
 			this.calculateRoute(route);
