@@ -26,6 +26,7 @@ modules: [
       animationSpeed: 2000, // in milliseconds
       size: "medium",
       showDelay: true,
+      showMiles: false, // default to show distance in metric units
       routes: [{
         name: "Lausanne City Center",
         symbol: "city",
@@ -54,6 +55,8 @@ modules: [
 | `animationSpeed ` | `false`  | Animation time to display results (in milliseconds)       | `2000`                        |
 | `size `           | `false`  | Font size family. Could be `small`, `medium` or `large`   | `medium`                      |
 | `showDelay `      | `false`  | Show or hide delay time in route info                     | `true`                        |
+| `showMiles `      | `false`  | Show distance in miles instead of kilometers             | `false`                       |
+
 
 ### `route` specs
 

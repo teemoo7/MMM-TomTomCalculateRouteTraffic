@@ -7,6 +7,7 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 		routes: [],
 		size: "medium",
 		showDelay: true,
+		showMiles: false,
 	},
 
 	adjustedFontClassMap: {
@@ -58,6 +59,7 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 			fr: "translations/fr.json",
 			de: "translations/de.json",
 			cs: "translations/cs.json",
+			es: "translations/es.json",
 		};
 	},
 
@@ -105,7 +107,9 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 			}
 			let nameSpan = document.createElement("span");
 			nameSpan.className = "normal " + this.getAdjustedFontClass("small");
-			nameSpan.innerHTML = calculatedRoute.route.name + " (" + calculatedRoute.calculated.lengthKm + " km)";
+
+			const distanceString = (showMiles) ? " (" + calculatedRoute.calculated.lengthMi + " mi)" : " (" + calculatedRoute.calculated.lengthKm + " km)";
+			nameSpan.innerHTML = calculatedRoute.route.name + distanceString;
 			infoDiv.appendChild(nameSpan);
 
 			wrapper.appendChild(routeDiv);
@@ -151,9 +155,15 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 
 	processData: function (jsonBody, route) {
 		let summary = jsonBody.routes[0].summary;
+
+		const conversionFactor = 0.0006213712; // Conversion factor from meters to miles
+		const miles = summary.lengthInMeters * conversionFactor; // Convert meters to miles
+		const lengthInMiles = Math.round(miles * 10) / 10;
+
 		let calculatedRoute = {
 			route: route,
 			calculated: {
+				lengthMi: lengthInMiles,
 				lengthKm: Math.ceil(summary.lengthInMeters / 1000),
 				timeMin: Math.ceil(summary.travelTimeInSeconds / 60),
 				delayMin: Math.ceil(summary.trafficDelayInSeconds / 60),
