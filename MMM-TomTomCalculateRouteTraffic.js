@@ -108,7 +108,7 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 			let nameSpan = document.createElement("span");
 			nameSpan.className = "normal " + this.getAdjustedFontClass("small");
 
-			const distanceString = (showMiles) ? " (" + calculatedRoute.calculated.lengthMi + " mi)" : " (" + calculatedRoute.calculated.lengthKm + " km)";
+			const distanceString = (this.config.showMiles) ? " (" + calculatedRoute.calculated.lengthMi + " mi)" : " (" + calculatedRoute.calculated.lengthKm + " km)";
 			nameSpan.innerHTML = calculatedRoute.route.name + distanceString;
 			infoDiv.appendChild(nameSpan);
 
