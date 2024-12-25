@@ -82,7 +82,7 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 
 			let timeDiv = document.createElement("div");
 			let numbersSpan = document.createElement("span");
-			numbersSpan.className = "bright " + this.getAdjustedFontClass("large");
+			numbersSpan.className = "bright " + this.getAdjustedFontClass("medium");
 			numbersSpan.innerHTML = calculatedRoute.calculated.timeMin;
 			timeDiv.appendChild(numbersSpan);
 			let minutesSpan = document.createElement("span");
@@ -93,7 +93,7 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 			if (this.config.showDelay && calculatedRoute.calculated.delayMin > 0) {
 				let delayDiv = document.createElement("div");
 				delayDiv.innerHTML = "(" + this.translate("including minutes delay", {"delayInMinutes": calculatedRoute.calculated.delayMin}) + ")";
-				delayDiv.className = "delay " + this.getAdjustedFontClass("medium");
+				delayDiv.className = "delay " + this.getAdjustedFontClass("small");
 				travelDiv.appendChild(delayDiv);
 			}
 
@@ -107,10 +107,13 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 			}
 			let nameSpan = document.createElement("span");
 			nameSpan.className = "normal " + this.getAdjustedFontClass("small");
-
-			const distanceString = (this.config.showMiles) ? " (" + calculatedRoute.calculated.lengthMi + " mi)" : " (" + calculatedRoute.calculated.lengthKm + " km)";
-			nameSpan.innerHTML = calculatedRoute.route.name + distanceString;
+			nameSpan.innerHTML = calculatedRoute.route.name + " (" + calculatedRoute.calculated.lengthMi + " mi)";
 			infoDiv.appendChild(nameSpan);
+
+			let etaSpan = document.createElement("span");
+			etaSpan.className = "normal " + this.getAdjustedFontClass("small");
+			etaSpan.innerHTML = "ETA: " + calculatedRoute.calculated.ETA;
+			routeDiv.appendChild(etaSpan);
 
 			wrapper.appendChild(routeDiv);
 		});
@@ -153,19 +156,63 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 		request.send();
 	},
 
+	/**
+	 * 
+	 * @param {number} meters 
+	 * @returns number
+	 */
+	convertMetersToMiles: function(meters) {
+		
+		const conversionFactor = 0.0006213712; // Conversion factor from meters to miles
+		const miles = meters * conversionFactor; // Convert meters to miles
+		const lengthInMiles = Math.round(miles * 10) / 10;
+
+		return lengthInMiles
+	},
+
+	/**
+	 * 
+	 * @param {number} min 
+	 * @returns string
+	 */
+	calculateEstimatedTimeOfArrival: function(min){
+		// Get current time
+		const now = new Date();
+		
+		// Add estimated minutes to the current time
+		now.setMinutes(now.getMinutes() + min);
+		
+		// Format the time of arrival (HH:MM AM/PM)
+		const hours = now.getHours();
+		const minutes = now.getMinutes();
+		const ampm = hours >= 12 ? 'PM' : 'AM';
+		
+		// Convert 24-hour time to 12-hour format
+		const hours12 = hours % 12;
+		const displayHours = hours12 === 0 ? 12 : hours12;  // Handle midnight and noon case
+		const displayMinutes = minutes < 10 ? '0' + minutes : minutes; // Ensure 2 digits for minutes
+		
+		// Construct the final ETA string
+		const eta = `${displayHours}:${displayMinutes} ${ampm}`;
+		
+		return eta;
+	},
+
 	processData: function (jsonBody, route) {
 		let summary = jsonBody.routes[0].summary;
 
-		const conversionFactor = 0.0006213712; // Conversion factor from meters to miles
-		const miles = summary.lengthInMeters * conversionFactor; // Convert meters to miles
-		const lengthInMiles = Math.round(miles * 10) / 10;
+		const lengthInMiles = this.convertMetersToMiles(summary.lengthInMeters);
+		const timeInMinutes = Math.ceil(summary.travelTimeInSeconds / 60);
+		const ETA = this.calculateEstimatedTimeOfArrival(timeInMinutes);
+
 
 		let calculatedRoute = {
 			route: route,
 			calculated: {
+				ETA: ETA,
 				lengthMi: lengthInMiles,
 				lengthKm: Math.ceil(summary.lengthInMeters / 1000),
-				timeMin: Math.ceil(summary.travelTimeInSeconds / 60),
+				timeMin: timeInMinutes,
 				delayMin: Math.ceil(summary.trafficDelayInSeconds / 60),
 			}
 		};
