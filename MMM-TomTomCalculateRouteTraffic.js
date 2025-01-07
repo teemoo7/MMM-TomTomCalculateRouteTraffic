@@ -107,7 +107,7 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 			let nameSpan = document.createElement("span");
 			nameSpan.className = "normal " + this.getAdjustedFontClass("small");
 			let lengthInfo = calculatedRoute.calculated.lengthKm + " km";
-			if (this.getUnits() === "imperial") {
+			if (this.config.units === "imperial") {
 				lengthInfo = calculatedRoute.calculated.lengthMiles + " mi";
 			}
 			nameSpan.innerHTML = calculatedRoute.route.name + " (" + lengthInfo + ")";
@@ -171,9 +171,5 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 	getAdjustedFontClass: function (fontSizeClass) {
 		return this.adjustedFontClassMap[this.config.size][fontSizeClass];
 	},
-
-	getUnits: function () {
-		return this.config.units === "imperial" ? "imperial" : "metric";
-	}
 
 });
