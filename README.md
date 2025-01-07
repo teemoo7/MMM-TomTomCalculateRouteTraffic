@@ -46,14 +46,15 @@ modules: [
 
 ### Options
 
-| Field             | Required | Description                                               | Default                       |
-|-------------------|----------|-----------------------------------------------------------|-------------------------------|
-| `apiTomTomKey`    | `true`   | Your API key for TomTom API                               |                               |
-| `routes `         | `true`   | Routes definition, with an array. See `route` specs below |                               |
-| `refresh `        | `false`  | Refresh interval (in milliseconds)                        | `(5 * 60 * 1000)` (5 minutes) |
-| `animationSpeed ` | `false`  | Animation time to display results (in milliseconds)       | `2000`                        |
-| `size `           | `false`  | Font size family. Could be `small`, `medium` or `large`   | `medium`                      |
-| `showDelay `      | `false`  | Show or hide delay time in route info                     | `true`                        |
+| Field             | Required | Description                                                        | Default                          |
+|-------------------|----------|--------------------------------------------------------------------|----------------------------------|
+| `apiTomTomKey`    | `true`   | Your API key for TomTom API                                        |                                  |
+| `routes `         | `true`   | Routes definition, with an array. See `route` specs below          |                                  |
+| `refresh `        | `false`  | Refresh interval (in milliseconds)                                 | `(5 * 60 * 1000)` (5 minutes)    |
+| `animationSpeed ` | `false`  | Animation time to display results (in milliseconds)                | `2000`                           |
+| `size `           | `false`  | Font size family. Could be `small`, `medium` or `large`            | `medium`                         |
+| `showDelay `      | `false`  | Show or hide delay time in route info                              | `true`                           |
+| `units`           | `false`  | Units for distance. Values can be `metric` (km) or `imperial` (mi) | Value from global config `units` |
 
 ### `route` specs
 
