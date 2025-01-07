@@ -105,7 +105,11 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 			}
 			let nameSpan = document.createElement("span");
 			nameSpan.className = "normal " + this.getAdjustedFontClass("small");
-			nameSpan.innerHTML = calculatedRoute.route.name + " (" + calculatedRoute.calculated.lengthKm + " km)";
+			let lengthInfo = calculatedRoute.calculated.lengthKm + " km";
+			if (this.getUnits() === "imperial") {
+				lengthInfo = calculatedRoute.calculated.lengthMiles + " mi";
+			}
+			nameSpan.innerHTML = calculatedRoute.route.name + " (" + lengthInfo + ")";
 			infoDiv.appendChild(nameSpan);
 
 			wrapper.appendChild(routeDiv);
@@ -155,6 +159,7 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 			route: route,
 			calculated: {
 				lengthKm: Math.ceil(summary.lengthInMeters / 1000),
+				lengthMiles: Math.ceil(summary.lengthInMeters / 1609.344),
 				timeMin: Math.ceil(summary.travelTimeInSeconds / 60),
 				delayMin: Math.ceil(summary.trafficDelayInSeconds / 60),
 			}
@@ -165,5 +170,9 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 	getAdjustedFontClass: function (fontSizeClass) {
 		return this.adjustedFontClassMap[this.config.size][fontSizeClass];
 	},
+
+	getUnits: function () {
+		return this.config.units === "imperial" ? "imperial" : "metric";
+	}
 
 });
