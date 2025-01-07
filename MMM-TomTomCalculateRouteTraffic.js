@@ -59,6 +59,7 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 			fr: "translations/fr.json",
 			de: "translations/de.json",
 			cs: "translations/cs.json",
+			es: "translations/es.json",
 		};
 	},
 
