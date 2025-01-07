@@ -7,6 +7,7 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 		routes: [],
 		size: "medium",
 		showDelay: true,
+		units: config.units,
 	},
 
 	adjustedFontClassMap: {
