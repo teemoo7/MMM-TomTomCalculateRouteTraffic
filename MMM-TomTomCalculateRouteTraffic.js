@@ -37,6 +37,8 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 
 		this.calculatedRoutes = [];
 		this.errorMessage = undefined;
+		this.requestToken = 0;
+		this.pendingRequests = 0;
 
 		var self = this;
 		setInterval(function () {
@@ -123,12 +125,18 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 	calculateRoutes: function () {
 		this.errorMessage = undefined;
 		this.calculatedRoutes = [];
+		this.requestToken += 1;
+		this.pendingRequests = this.config.routes.length;
+		if (this.pendingRequests === 0) {
+			this.updateDom(this.config.animationSpeed);
+			return;
+		}
 		this.config.routes.forEach(route => {
-			this.calculateRoute(route);
+			this.calculateRoute(route, this.requestToken);
 		});
 	},
 
-	calculateRoute: function (route) {
+	calculateRoute: function (route, requestToken) {
 		let locations = `${route.from.latitude},${route.from.longitude}:${route.to.latitude},${route.to.longitude}`;
 		let url = `${this.config.apiTomTomBaseUrl}/${locations}/json?key=${this.config.apiTomTomKey}`;
 
@@ -137,6 +145,9 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 		request.open("GET", url, true);
 		request.onreadystatechange = function () {
 			if (this.readyState === 4) {
+				if (requestToken !== self.requestToken) {
+					return;
+				}
 				if (this.status === 200) {
 					self.processData(JSON.parse(this.response), route);
 				} else {
@@ -149,7 +160,10 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 					Log.error(errorMessage);
 					self.errorMessage = errorMessage;
 				}
-				self.updateDom(self.config.animationSpeed);
+				self.pendingRequests -= 1;
+				if (self.pendingRequests <= 0) {
+					self.updateDom(self.config.animationSpeed);
+				}
 			}
 		};
 		request.send();
