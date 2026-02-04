@@ -123,6 +123,12 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 	calculateRoutes: function () {
 		this.errorMessage = undefined;
 		this.calculatedRoutes = [];
+		this.completedRoutes = 0;
+		this.expectedRoutes = this.config.routes.length;
+		if (this.expectedRoutes === 0) {
+			this.updateDom(this.config.animationSpeed);
+			return;
+		}
 		this.config.routes.forEach(route => {
 			this.calculateRoute(route);
 		});
@@ -149,7 +155,10 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 					Log.error(errorMessage);
 					self.errorMessage = errorMessage;
 				}
-				self.updateDom(self.config.animationSpeed);
+				self.completedRoutes++;
+				if (self.completedRoutes >= self.expectedRoutes) {
+					self.updateDom(self.config.animationSpeed);
+				}
 			}
 		};
 		request.send();
