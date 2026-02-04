@@ -31,12 +31,16 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 	start: function () {
 		Log.info(`Starting module: ${this.name}`);
 		if (this.config.apiTomTomKey === "") {
-			Log.error(`${this.name}: TomTom API key not set. Please read the README.md for details.`);
+			this.logAndDisplayError("TomTom API key not set. Please read the README.md for details.");
 			return;
 		}
 
 		this.calculatedRoutes = [];
 		this.errorMessage = undefined;
+
+		if (!this.validateRoutesConfig()) {
+			return;
+		}
 
 		var self = this;
 		setInterval(function () {
@@ -120,6 +124,38 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 		return wrapper;
 	},
 
+	validateRoutesConfig: function () {
+		if (!Array.isArray(this.config.routes)) {
+			this.logAndDisplayError("Routes configuration is not an array.");
+			return false;
+		}
+		for (let i = 0; i < this.config.routes.length; i++) {
+			const route = this.config.routes[i];
+			if (!route || typeof route !== "object") {
+				this.logAndDisplayError(`Route at index ${i} is not an object.`);
+				return false;
+			}
+			if (!route.from || typeof route.from !== "object" || !route.to || typeof route.to !== "object") {
+				this.logAndDisplayError(`Route at index ${i} is missing 'from' or 'to' object.`);
+				return false;
+			}
+			const from = route.from;
+			const to = route.to;
+			if (typeof from.latitude !== "number" || typeof from.longitude !== "number" ||
+				typeof to.latitude !== "number" || typeof to.longitude !== "number") {
+				this.logAndDisplayError(`Route at index ${i} has invalid latitude/longitude.`);
+				return false;
+			}
+		}
+		return true;
+	},
+
+	logAndDisplayError: function (message) {
+		this.errorMessage = message;
+		Log.error(`${this.name}: ${message}`);
+		this.updateDom(this.config.animationSpeed);
+	},
+
 	calculateRoutes: function () {
 		this.errorMessage = undefined;
 		this.calculatedRoutes = [];
@@ -146,14 +182,13 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 				if (this.status === 200) {
 					self.processData(JSON.parse(this.response), route);
 				} else {
-					var errorMessage = `${self.name}: TomTom API returned an error: ${this.status}. `;
+					var errorMessage = `TomTom API returned an error: ${this.status}. `;
 					if (this.status === 400) {
 						errorMessage += "Incorrect request (locations)";
 					} else if (this.status === 403) {
 						errorMessage += "Authentication / permissions issue";
 					}
-					Log.error(errorMessage);
-					self.errorMessage = errorMessage;
+					self.logAndDisplayError(errorMessage);
 				}
 				self.completedRoutes++;
 				if (self.completedRoutes >= self.expectedRoutes) {
