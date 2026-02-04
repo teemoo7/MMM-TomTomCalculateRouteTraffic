@@ -30,13 +30,14 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 
 	start: function () {
 		Log.info(`Starting module: ${this.name}`);
+
+		this.calculatedRoutes = [];
+		this.errorMessage = undefined;
+
 		if (this.config.apiTomTomKey === "") {
 			this.logAndDisplayError("TomTom API key not set. Please read the README.md for details.");
 			return;
 		}
-
-		this.calculatedRoutes = [];
-		this.errorMessage = undefined;
 
 		if (!this.validateRoutesConfig()) {
 			return;
