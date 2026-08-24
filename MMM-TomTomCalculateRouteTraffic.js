@@ -28,6 +28,8 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 		},
 	},
 
+	timerHandle: null,
+
 	start: function () {
 		Log.info(`Starting module: ${this.name}`);
 
@@ -44,10 +46,14 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 		}
 
 		var self = this;
-		setInterval(function () {
-			self.calculateRoutes();
-		}, this.config.refresh);
+		self.startTimer()
+	},
+
+	startTimer: function(){
 		self.calculateRoutes();
+		self.timerHandle=setInterval(function () {
+			self.calculateRoutes();
+		}, self.config.refresh);
 	},
 
 	getStyles: function () {
@@ -217,5 +223,14 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 	getAdjustedFontClass: function (fontSizeClass) {
 		return this.adjustedFontClassMap[this.config.size][fontSizeClass];
 	},
+
+	suspend: function() {
+		clearInterval(this.timerHandle)
+		this.timerHandle = null
+	},
+
+	resume: function() {
+		this.startTimer()
+	}
 
 });
