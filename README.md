@@ -2,7 +2,7 @@
 
 [MagicMirror²](https://github.com/MichMich/MagicMirror/) module to calculate routes with TomTom API (free), and display travel time with traffic delays.
 
-![ScreenShot](screenshots/route.png)
+![ScreenShot](screenshots/screenshot.png)
 
 ## Installation
 
