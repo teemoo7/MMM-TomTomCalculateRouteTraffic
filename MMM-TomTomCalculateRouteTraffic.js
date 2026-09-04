@@ -51,7 +51,7 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 	startTimer: function(){
 		let self = this;
 		this.calculateRoutes();
-		this.timerHandle=setInterval(function () {
+		this.timerHandle = setInterval(function () {
 			self.calculateRoutes();
 		}, self.config.refresh);
 	},
