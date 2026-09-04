@@ -45,13 +45,13 @@ Module.register("MMM-TomTomCalculateRouteTraffic", {
 			return;
 		}
 
-		var self = this;
-		self.startTimer()
+		this.startTimer()
 	},
 
 	startTimer: function(){
-		self.calculateRoutes();
-		self.timerHandle=setInterval(function () {
+		let self = this;
+		this.calculateRoutes();
+		this.timerHandle=setInterval(function () {
 			self.calculateRoutes();
 		}, self.config.refresh);
 	},
